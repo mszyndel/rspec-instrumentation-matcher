@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-
 describe RSpec::Instrumentation::Matcher do
 
   def event(notification, payload={})
@@ -25,6 +24,15 @@ describe RSpec::Instrumentation::Matcher do
     expect {
       event(notification,{ test_payload: true, asd: true })
     }.to instrument(notification).with(hash_including(test_payload: true))
+  end
+
+  specify do
+    expect {
+      event(notification,{ test_payload: true, asd: false })
+    }.to instrument(notification).with {|payload|
+      expect(payload[:test_payload]).to be
+      expect(payload[:asd]).not_to be
+    }
   end
 
   context 'when the instrumented block raises an exception' do
